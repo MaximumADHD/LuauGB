@@ -49,7 +49,9 @@ screen.Parent = window
 local ticker = 0
 local runner: thread?
 local lastTick = os.clock()
-local frameBuffer = table.create(WIDTH * HEIGHT * 4, 1)
+local frameBuffer = buffer.create(WIDTH * HEIGHT * 4)
+
+buffer.fill(frameBuffer, 0, 255)
 
 local inputMap = {
 	[Enum.KeyCode.Up] = "Up",
@@ -139,15 +141,15 @@ local function runThread()
 		for y = 0, HEIGHT - 1 do
 			for x = 0, WIDTH - 1 do
 				local pixel = pixels[y][x]
-				frameBuffer[i + 1] = pixel[1] / 255
-				frameBuffer[i + 2] = pixel[2] / 255
-				frameBuffer[i + 3] = pixel[3] / 255
+				buffer.writeu8(frameBuffer, i, pixel[1])
+				buffer.writeu8(frameBuffer, i + 1, pixel[2])
+				buffer.writeu8(frameBuffer, i + 2, pixel[3])
 
 				i += 4
 			end
 		end
 
-		screen:WritePixels(Vector2.zero, size, frameBuffer)
+		screen:WritePixelsBuffer(Vector2.zero, size, frameBuffer)
 		RunService.Heartbeat:Wait()
 	end
 end
